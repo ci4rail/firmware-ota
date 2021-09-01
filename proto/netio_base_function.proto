@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package NetioBaseFunction;
+option go_package = "pkg/netio_base";
+
+
+message SerialNumber {
+    uint64 hi = 1;
+    uint64 lo = 2;
+}
+
+enum CommandId {
+    IDENTIFY_HARDWARE = 0;
+    IDENTIFY_FIRMWARE = 1;
+    UPDATE_FIRMWARE = 2;
+}
+
+
+enum Status {
+    OK = 0;
+    UNKNOWN_COMMAND = 1;
+    PROGRAMMING_ERROR = 2;
+    NOT_COMPATIBLE = 3;
+}
+
+// Individual Commands and Responses
+
+message ResIdentifyHardware {
+    string root_article = 1;
+    uint32 major_version = 2;
+    SerialNumber serial_number = 3;
+}
+
+message ResIdentifyFirmware {
+    string name = 1;
+    uint32 major_version = 2;
+    uint32 minor_version = 3;
+    uint32 patch_version = 4;
+}
+
+
+message Command {
+    CommandId id = 1;
+}
+
+message Response {
+    CommandId id = 1;
+    Status status = 2;
+    oneof data {
+        ResIdentifyHardware identify_hardware = 3;
+        ResIdentifyFirmware identify_firmware = 4;
+    }
+}
