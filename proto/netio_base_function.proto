@@ -12,7 +12,7 @@ message SerialNumber {
 enum CommandId {
     IDENTIFY_HARDWARE = 0;
     IDENTIFY_FIRMWARE = 1;
-    UPDATE_FIRMWARE = 2;
+    LOAD_FIRMWARE_CHUNK = 2;
 }
 
 
@@ -20,10 +20,22 @@ enum Status {
     OK = 0;
     UNKNOWN_COMMAND = 1;
     PROGRAMMING_ERROR = 2;
-    NOT_COMPATIBLE = 3;
+    CHUNK_SEQ_ERROR = 3;
+    NOT_COMPATIBLE = 4;
 }
 
 // Individual Commands and Responses
+
+// LoadFirmware
+// Client sends sequence of CmdLoadFirmwareChunk commands, with increasing
+// chunk numbers. Clients defines chunk size. 
+// Server must acknowledge each chunk with Response.
+// Last chunk has is_last_chunk set to True, so server knows that programming has finished
+message CmdLoadFirmwareChunk {
+    uint32 chunk_number = 1;
+    bool is_last_chunk = 2;
+    bytes data = 3;
+}
 
 message ResIdentifyHardware {
     string root_article = 1;
@@ -38,9 +50,12 @@ message ResIdentifyFirmware {
     uint32 patch_version = 4;
 }
 
-
+// The common messages
 message Command {
     CommandId id = 1;
+    oneof data {
+        CmdLoadFirmwareChunk load_firmware_chunk = 2;
+    }
 }
 
 message Response {

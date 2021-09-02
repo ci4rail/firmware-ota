@@ -18,6 +18,7 @@ import (
 	"log"
 
 	"github.com/ci4rail/firmware-ota/netio-devsim/internal/devproto"
+	"github.com/ci4rail/firmware-ota/netio-devsim/internal/firmware"
 	"github.com/ci4rail/firmware-ota/netio-devsim/pkg/version"
 	"github.com/ci4rail/firmware-ota/pkg/netio_base"
 )
@@ -58,7 +59,9 @@ func serveConnection(dp *devproto.DevProto) {
 		var res *netio_base.Response
 		switch c.Id {
 		case netio_base.CommandId_IDENTIFY_FIRMWARE:
-			res = IdentifyFirmware()
+			res = firmware.IdentifyFirmware()
+		case netio_base.CommandId_LOAD_FIRMWARE_CHUNK:
+			res = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
 		default:
 			res = &netio_base.Response{
 				Id:     c.Id,
@@ -71,21 +74,4 @@ func serveConnection(dp *devproto.DevProto) {
 			log.Fatalf("Failed to write: %s", err)
 		}
 	}
-}
-
-func IdentifyFirmware() *netio_base.Response {
-
-	res := &netio_base.Response{
-		Id:     netio_base.CommandId_IDENTIFY_FIRMWARE,
-		Status: netio_base.Status_OK,
-		Data: &netio_base.Response_IdentifyFirmware{
-			IdentifyFirmware: &netio_base.ResIdentifyFirmware{
-				Name:         "bla",
-				MajorVersion: 1,
-				MinorVersion: 0,
-				PatchVersion: 0,
-			},
-		},
-	}
-	return res
 }

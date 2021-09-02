@@ -23,7 +23,7 @@ import (
 
 // Er logs the error on stderr and terminates with exit code 1
 func Er(msg interface{}) {
-	fmt.Fprintf(os.Stderr, "Error: %v", msg)
+	fmt.Fprintf(os.Stderr, "Error: %v\n", msg)
 	os.Exit(1)
 }
 
