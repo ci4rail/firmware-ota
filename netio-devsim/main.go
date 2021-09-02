@@ -14,13 +14,12 @@ limitations under the License.
 package main
 
 import (
-	"fmt"
+	"io"
 	"log"
 
-	"github.com/ci4rail/firmware-ota/netio-devsim/pkg/socket"
+	"github.com/ci4rail/firmware-ota/netio-devsim/internal/devproto"
 	"github.com/ci4rail/firmware-ota/netio-devsim/pkg/version"
 	"github.com/ci4rail/firmware-ota/pkg/netio_base"
-	"github.com/golang/protobuf/proto"
 )
 
 var (
@@ -30,56 +29,63 @@ var (
 func main() {
 	log.Printf("netio-devsim version: %s listen at port %s\n", version.Version, port)
 
-	sock, err := socket.WaitForConnect(port)
-
+	dp, err := devproto.NewDevProto(port)
 	if err != nil {
-		log.Fatalf("Failed to wait for connection: %s", err)
+		log.Fatalf("Failed to create devproto: %s", err)
 	}
+	for {
+		err := dp.WaitForConnection()
+		if err != nil {
+			log.Fatalf("Failed to wait for connection: %s", err)
+		}
+		serveConnection(dp)
+	}
+}
+
+func serveConnection(dp *devproto.DevProto) {
+	defer dp.Close()
 
 	for {
-		payload, err := sock.Read()
-
+		c := &netio_base.Command{}
+		err := dp.ReadMessage(c)
 		if err != nil {
-			log.Fatalf("Failed to read from connection: %s", err)
+			if err == io.EOF {
+				return
+			}
+			log.Fatalf("Failed to read: %s", err)
 		}
 
-		fmt.Printf("got payload %v\n", payload)
-
-		cmdData := &netio_base.Command{}
-		if err := proto.Unmarshal(payload, cmdData); err != nil {
-			log.Fatalf("Failed to unmarshal: %s", err)
-		}
-		fmt.Printf("Got command %v\n", cmdData.Id)
-
-		var res netobase.Response
-
-		switch cmdData.Id {
+		var res *netio_base.Response
+		switch c.Id {
 		case netio_base.CommandId_IDENTIFY_FIRMWARE:
 			res = IdentifyFirmware()
 		default:
-			res := &netio_base.Response{
-				Id:  cmdData.Id,
+			res = &netio_base.Response{
+				Id:     c.Id,
 				Status: netio_base.Status_UNKNOWN_COMMAND,
 			}
 		}
 
+		err = dp.WriteMessage(res)
+		if err != nil {
+			log.Fatalf("Failed to write: %s", err)
+		}
 	}
-
 }
 
-func IdentifyFirmware() netio_base.Response {
+func IdentifyFirmware() *netio_base.Response {
 
 	res := &netio_base.Response{
-		Id: netio_base.CommandId_IDENTIFY_FIRMWARE,
+		Id:     netio_base.CommandId_IDENTIFY_FIRMWARE,
 		Status: netio_base.Status_OK,
 		Data: &netio_base.Response_IdentifyFirmware{
 			IdentifyFirmware: &netio_base.ResIdentifyFirmware{
-				Name: "bla",
+				Name:         "bla",
 				MajorVersion: 1,
 				MinorVersion: 0,
 				PatchVersion: 0,
 			},
-		}
+		},
 	}
-	return res	
+	return res
 }
