@@ -2,10 +2,19 @@ package netio
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
 	"google.golang.org/protobuf/proto"
 )
+
+type channReader interface {
+	Read() ([]byte, error)
+}
+type timeoutReader struct {
+	reader  channReader
+	timeout time.Duration
+}
 
 // Channel holds the channels variables
 type Channel struct {
@@ -31,9 +40,43 @@ func (c *Channel) WriteMessage(m proto.Message) error {
 	return c.Write(payload)
 }
 
-// ReadMessage waits for a new message in transport stream and decodes it via protobuf
+// ReadMessage waits (without timeout) for a new message in transport stream and decodes it via protobuf
 func (c *Channel) ReadMessage(m proto.Message) error {
-	payload, err := c.Read()
+	return c.readMessage(m, c)
+}
+
+// ReadMessageWithTimeout waits until Timeout for a new message in transport stream and decodes it via protobuf
+func (c *Channel) ReadMessageWithTimeout(m proto.Message, timeout time.Duration) error {
+	r := newTimeoutReader(c, timeout)
+	return c.readMessage(m, r)
+}
+
+func newTimeoutReader(reader channReader, timeout time.Duration) channReader {
+	ret := new(timeoutReader)
+	ret.reader = reader
+	ret.timeout = timeout
+	return ret
+}
+
+func (tr *timeoutReader) Read() (payload []byte, err error) {
+	ch := make(chan bool)
+	err = nil
+	payload = nil
+	go func() {
+		payload, err = tr.reader.Read()
+		ch <- true
+	}()
+	select {
+	case <-ch:
+		return payload, err
+	case <-time.After(tr.timeout):
+		return nil, errors.New("Timeout")
+	}
+
+}
+
+func (c *Channel) readMessage(m proto.Message, r channReader) error {
+	payload, err := r.Read()
 	if err != nil {
 		return err
 	}
@@ -89,7 +132,7 @@ func (c *Channel) writePayload(payload []byte) error {
 	return err
 }
 
-// writeBytesSafe retries writing to socket until all bytes are written
+// writeBytesSafe retries writing to transport stream until all bytes are written
 func (c *Channel) writeBytesSafe(payload []byte) error {
 	for {
 		written, err := c.trans.Write(payload)
@@ -103,7 +146,7 @@ func (c *Channel) writeBytesSafe(payload []byte) error {
 	}
 }
 
-// Read reads a Netio standard message from socket s
+// Read reads a Netio standard message from transport stream
 func (c *Channel) Read() ([]byte, error) {
 	// make sure we have the magic bytes
 	err := c.readMagicBytes()
@@ -123,7 +166,7 @@ func (c *Channel) Read() ([]byte, error) {
 	return payload, nil
 }
 
-// readMagicBytes blocks until it receives the magic bytes 0xFE, 0xED from s.Connection.
+// readMagicBytes blocks until it receives the magic bytes 0xFE, 0xED from transport stream.
 func (c *Channel) readMagicBytes() error {
 	// block until we get the magic bytes
 	for {
@@ -144,7 +187,7 @@ func (c *Channel) readMagicBytes() error {
 	}
 }
 
-// readLength reads 4 bytes from s.Connection and returns the length as uint of the message.
+// readLength reads 4 bytes from transport stream and returns the length as uint of the message.
 func (c *Channel) readLength() (uint, error) {
 	lengthBytes := make([]byte, 4)
 	_, err := c.trans.Read(lengthBytes)
@@ -158,7 +201,7 @@ func (c *Channel) readLength() (uint, error) {
 	return length, nil
 }
 
-// readPayload reads the payload from s.Connection and returns it as []byte.
+// readPayload reads the payload from transport stream and returns it as []byte.
 func (c *Channel) readPayload(length uint) ([]byte, error) {
 	payload := make([]byte, length)
 	n, err := c.trans.Read(payload)
