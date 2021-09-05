@@ -9,14 +9,14 @@ import (
 )
 
 type channReader interface {
-	Read() ([]byte, error)
+	read() ([]byte, error)
 }
 type timeoutReader struct {
 	reader  channReader
 	timeout time.Duration
 }
 
-// Channel holds the channels variables
+// Channel represents a netio channel
 type Channel struct {
 	trans transport.Transport
 }
@@ -37,7 +37,7 @@ func (c *Channel) WriteMessage(m proto.Message) error {
 	if err != nil {
 		return err
 	}
-	return c.Write(payload)
+	return c.write(payload)
 }
 
 // ReadMessage waits (without timeout) for a new message in transport stream and decodes it via protobuf
@@ -58,12 +58,12 @@ func newTimeoutReader(reader channReader, timeout time.Duration) channReader {
 	return ret
 }
 
-func (tr *timeoutReader) Read() (payload []byte, err error) {
+func (tr *timeoutReader) read() (payload []byte, err error) {
 	ch := make(chan bool)
 	err = nil
 	payload = nil
 	go func() {
-		payload, err = tr.reader.Read()
+		payload, err = tr.reader.read()
 		ch <- true
 	}()
 	select {
@@ -76,7 +76,7 @@ func (tr *timeoutReader) Read() (payload []byte, err error) {
 }
 
 func (c *Channel) readMessage(m proto.Message, r channReader) error {
-	payload, err := r.Read()
+	payload, err := r.read()
 	if err != nil {
 		return err
 	}
@@ -84,8 +84,8 @@ func (c *Channel) readMessage(m proto.Message, r channReader) error {
 	return proto.Unmarshal(payload, m)
 }
 
-// Write writes Netio standard message to the socket s
-func (c *Channel) Write(payload []byte) error {
+// write writes Netio standard message to the socket s
+func (c *Channel) write(payload []byte) error {
 	// make sure we have the magic bytes
 	err := c.writeMagicBytes()
 	if err != nil {
@@ -146,8 +146,8 @@ func (c *Channel) writeBytesSafe(payload []byte) error {
 	}
 }
 
-// Read reads a Netio standard message from transport stream
-func (c *Channel) Read() ([]byte, error) {
+// read reads a Netio standard message from transport stream
+func (c *Channel) read() ([]byte, error) {
 	// make sure we have the magic bytes
 	err := c.readMagicBytes()
 	if err != nil {

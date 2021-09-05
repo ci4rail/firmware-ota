@@ -17,13 +17,16 @@ limitations under the License.
 package cmd
 
 import (
+	"time"
+
 	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	host = "localhost:9999"
+	device  = "localhost:9999"
+	timeout = 3 * time.Second
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -48,5 +51,5 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&host, "netio-addr", "", "IP address of NetIO devices with port e.g. 192.168.7.1:9999")
+	rootCmd.PersistentFlags().StringVarP(&device, "device", "d", "", "IP address of NetIO devices with port e.g. 192.168.7.1:9999")
 }

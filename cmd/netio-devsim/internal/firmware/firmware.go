@@ -18,9 +18,8 @@ import (
 	"errors"
 	"log"
 	"strings"
-	"time"
 
-	"github.com/ci4rail/firmware-ota/pkg/netio"
+	"github.com/ci4rail/firmware-ota/pkg/netio/basefunc"
 )
 
 type firmwareID struct {
@@ -46,13 +45,13 @@ var (
 )
 
 // IdentifyFirmware reports the currently active firmware name and version
-func IdentifyFirmware() *netio.BaseFuncResponse {
+func IdentifyFirmware() *basefunc.BaseFuncResponse {
 
-	res := &netio.BaseFuncResponse{
-		Id:     netio.BaseFuncCommandId_IDENTIFY_FIRMWARE,
-		Status: netio.BaseFuncStatus_OK,
-		Data: &netio.BaseFuncResponse_IdentifyFirmware{
-			IdentifyFirmware: &netio.ResIdentifyFirmware{
+	res := &basefunc.BaseFuncResponse{
+		Id:     basefunc.BaseFuncCommandId_IDENTIFY_FIRMWARE,
+		Status: basefunc.BaseFuncStatus_OK,
+		Data: &basefunc.BaseFuncResponse_IdentifyFirmware{
+			IdentifyFirmware: &basefunc.ResIdentifyFirmware{
 				Name:         fwID.Name,
 				MajorVersion: uint32(fwID.Major),
 				MinorVersion: uint32(fwID.Minor),
@@ -64,12 +63,12 @@ func IdentifyFirmware() *netio.BaseFuncResponse {
 }
 
 // LoadFirmwareChunk loads the chunk in c to the virtual flash
-func LoadFirmwareChunk(c *netio.CmdLoadFirmwareChunk) *netio.BaseFuncResponse {
+func LoadFirmwareChunk(c *basefunc.CmdLoadFirmwareChunk) (res *basefunc.BaseFuncResponse, doreset bool) {
 
-	var status = netio.BaseFuncStatus_OK
-
+	var status = basefunc.BaseFuncStatus_OK
+	doreset = false
 	if nextChunkNumber != c.ChunkNumber {
-		status = netio.BaseFuncStatus_CHUNK_SEQ_ERROR
+		status = basefunc.BaseFuncStatus_CHUNK_SEQ_ERROR
 	} else {
 		log.Printf("Loading chunk %d @%08x\n", nextChunkNumber, nextFlashOffset)
 
@@ -86,23 +85,23 @@ func LoadFirmwareChunk(c *netio.CmdLoadFirmwareChunk) *netio.BaseFuncResponse {
 				log.Printf("firmware header not ok %v\n", err)
 			} else if !header.FirmwareWorks {
 				log.Printf("firmware not working\n")
+				doreset = true
 			} else {
-				log.Printf("activating new firmware %v (slow)\n", header)
-				time.Sleep(4 * time.Second)
+				log.Printf("activating new firmware %v\n", header)
 				fwID.Name = header.Name
 				fwID.Major = header.Major
 				fwID.Minor = header.Minor
 				fwID.Patch = header.Patch
+				doreset = true
 			}
 		}
-
 	}
 
-	res := &netio.BaseFuncResponse{
-		Id:     netio.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK,
+	res = &basefunc.BaseFuncResponse{
+		Id:     basefunc.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK,
 		Status: status,
 	}
-	return res
+	return res, doreset
 }
 
 func fwHeaderFromFlash(flash []byte) (*firmwareHeader, error) {

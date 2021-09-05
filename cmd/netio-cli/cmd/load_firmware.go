@@ -17,16 +17,16 @@ limitations under the License.
 package cmd
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"log"
-	"os"
 
+	"github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/client"
 	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
-	"github.com/ci4rail/firmware-ota/pkg/netio"
-	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
+
 	"github.com/spf13/cobra"
+)
+
+var (
+	chunkSize = uint(1024)
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -42,62 +42,15 @@ netio-cli <firmware-file>`,
 }
 
 func loadFirmware(cmd *cobra.Command, args []string) {
-
-	conn, err := transport.NewConnection(host)
+	file := args[0]
+	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	ch, err := netio.NewChannel(conn)
-
-	c := &netio.BaseFuncCommand{
-		Id: netio.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK,
-		Data: &netio.BaseFuncCommand_LoadFirmwareChunk{
-			LoadFirmwareChunk: &netio.CmdLoadFirmwareChunk{
-				Data: make([]byte, 1024),
-			},
-		},
-	}
-	data := c.GetLoadFirmwareChunk().Data
-
-	f, err := os.Open(args[0])
+	err = c.LoadFirmwareFromFile(file, chunkSize, timeout)
 	e.ErrChk(err)
 
-	defer f.Close()
-
-	reader := bufio.NewReader(f)
-	chunkNumber := uint32(0)
-
-	for {
-		atEOF := false
-
-		n, err := reader.Read(data)
-		e.ErrChk(err)
-
-		// check if we are at EOF
-		_, err = reader.Peek(1)
-		if err == io.EOF {
-			atEOF = true
-		}
-		log.Printf("Read %d bytes at_eof=%v chunk %d\n", n, atEOF, chunkNumber)
-
-		c.GetLoadFirmwareChunk().IsLastChunk = atEOF
-		c.GetLoadFirmwareChunk().ChunkNumber = chunkNumber
-
-		err = ch.WriteMessage(c)
-		e.ErrChk(err)
-
-		r := &netio.BaseFuncResponse{}
-
-		err = ch.ReadMessage(r)
-		e.ErrChk(err)
-
-		fmt.Printf("%v\n", r)
-
-		if atEOF {
-			break
-		}
-		chunkNumber++
-	}
-
+	fmt.Printf("New ")
+	identifyFirmware(cmd, args)
 }
 
 func init() {

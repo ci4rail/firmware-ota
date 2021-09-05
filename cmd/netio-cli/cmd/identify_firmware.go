@@ -19,9 +19,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/client"
 	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
-	"github.com/ci4rail/firmware-ota/pkg/netio"
-	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
 	"github.com/spf13/cobra"
 )
 
@@ -34,28 +33,13 @@ var identifyFirmwareCmd = &cobra.Command{
 }
 
 func identifyFirmware(cmd *cobra.Command, args []string) {
-	fmt.Println("Identify FW called")
-
-	conn, err := transport.NewConnection(host)
+	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	ch, err := netio.NewChannel(conn)
+	fwID, err := c.IdentifyFirmware(timeout)
 	e.ErrChk(err)
 
-	c := &netio.BaseFuncCommand{
-		Id: netio.BaseFuncCommandId_IDENTIFY_FIRMWARE,
-	}
-
-	err = ch.WriteMessage(c)
-	e.ErrChk(err)
-
-	r := &netio.BaseFuncResponse{}
-
-	err = ch.ReadMessage(r)
-	e.ErrChk(err)
-
-	fmt.Printf("%v\n", r)
-
+	fmt.Printf("Firmware name: %s, Version %d.%d.%d\n", fwID.Name, fwID.MajorVersion, fwID.MinorVersion, fwID.PatchVersion)
 }
 
 func init() {

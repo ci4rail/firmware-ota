@@ -20,6 +20,7 @@ import (
 	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/internal/firmware"
 	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/pkg/version"
 	"github.com/ci4rail/firmware-ota/pkg/netio"
+	"github.com/ci4rail/firmware-ota/pkg/netio/basefunc"
 	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
 )
 
@@ -32,7 +33,7 @@ func main() {
 
 	listener, err := transport.NewListener(port)
 	if err != nil {
-		log.Fatalf("Failed to create listenet: %s", err)
+		log.Fatalf("Failed to create listener: %s", err)
 	}
 
 	if err != nil {
@@ -43,7 +44,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to wait for connection: %s", err)
 		}
-
+		log.Printf("new connection!\n")
 		ch, _ := netio.NewChannel(conn)
 
 		serveConnection(ch)
@@ -54,7 +55,7 @@ func serveConnection(ch *netio.Channel) {
 	defer ch.Close()
 
 	for {
-		c := &netio.BaseFuncCommand{}
+		c := &basefunc.BaseFuncCommand{}
 		err := ch.ReadMessage(c)
 		if err != nil {
 			if err == io.EOF {
@@ -63,22 +64,27 @@ func serveConnection(ch *netio.Channel) {
 			log.Fatalf("Failed to read: %s", err)
 		}
 
-		var res *netio.BaseFuncResponse
+		var res *basefunc.BaseFuncResponse
+		doreset := false
 		switch c.Id {
-		case netio.BaseFuncCommandId_IDENTIFY_FIRMWARE:
+		case basefunc.BaseFuncCommandId_IDENTIFY_FIRMWARE:
 			res = firmware.IdentifyFirmware()
-		case netio.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK:
-			res = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
+		case basefunc.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK:
+			res, doreset = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
 		default:
-			res = &netio.BaseFuncResponse{
+			res = &basefunc.BaseFuncResponse{
 				Id:     c.Id,
-				Status: netio.BaseFuncStatus_UNKNOWN_COMMAND,
+				Status: basefunc.BaseFuncStatus_UNKNOWN_COMMAND,
 			}
 		}
 
 		err = ch.WriteMessage(res)
 		if err != nil {
-			log.Fatalf("Failed to write: %s", err)
+			log.Printf("Failed to write: %s", err)
+			return
+		}
+		if doreset {
+			return
 		}
 	}
 }
