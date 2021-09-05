@@ -1,6 +1,6 @@
 BIN_DIR ?= ./bin
 
-all: build 
+all: build
 
 build: netio-devsim netio-cli
 

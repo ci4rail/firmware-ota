@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package NetioBaseFunction;
-option go_package = "pkg/netio_base";
+option go_package = "pkg/netio";
 
 
 message SerialNumber {
@@ -9,14 +9,14 @@ message SerialNumber {
     uint64 lo = 2;
 }
 
-enum CommandId {
+enum BaseFuncCommandId {
     IDENTIFY_HARDWARE = 0;
     IDENTIFY_FIRMWARE = 1;
     LOAD_FIRMWARE_CHUNK = 2;
 }
 
 
-enum Status {
+enum BaseFuncStatus {
     OK = 0;
     UNKNOWN_COMMAND = 1;
     PROGRAMMING_ERROR = 2;
@@ -28,7 +28,7 @@ enum Status {
 
 // LoadFirmware
 // Client sends sequence of CmdLoadFirmwareChunk commands, with increasing
-// chunk numbers. Clients defines chunk size. 
+// chunk numbers. Clients defines chunk size.
 // Server must acknowledge each chunk with Response.
 // Last chunk has is_last_chunk set to True, so server knows that programming has finished
 message CmdLoadFirmwareChunk {
@@ -51,16 +51,16 @@ message ResIdentifyFirmware {
 }
 
 // The common messages
-message Command {
-    CommandId id = 1;
+message BaseFuncCommand {
+    BaseFuncCommandId id = 1;
     oneof data {
         CmdLoadFirmwareChunk load_firmware_chunk = 2;
     }
 }
 
-message Response {
-    CommandId id = 1;
-    Status status = 2;
+message BaseFuncResponse {
+    BaseFuncCommandId id = 1;
+    BaseFuncStatus status = 2;
     oneof data {
         ResIdentifyHardware identify_hardware = 3;
         ResIdentifyFirmware identify_firmware = 4;
