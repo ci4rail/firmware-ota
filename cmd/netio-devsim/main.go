@@ -16,6 +16,7 @@ package main
 import (
 	"io"
 	"log"
+	"time"
 
 	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/internal/firmware"
 	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/pkg/version"
@@ -48,6 +49,7 @@ func main() {
 		ch, _ := netio.NewChannel(conn)
 
 		serveConnection(ch)
+		time.Sleep(4 * time.Second) // simulate reboot
 	}
 }
 

@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/client"
 	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
@@ -36,7 +37,7 @@ func identifyFirmware(cmd *cobra.Command, args []string) {
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	fwID, err := c.IdentifyFirmware(timeout)
+	fwID, err := c.IdentifyFirmware(time.Duration(timeoutSecs) * time.Second)
 	e.ErrChk(err)
 
 	fmt.Printf("Firmware name: %s, Version %d.%d.%d\n", fwID.Name, fwID.MajorVersion, fwID.MinorVersion, fwID.PatchVersion)

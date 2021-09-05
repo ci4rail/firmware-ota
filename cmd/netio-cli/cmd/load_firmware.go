@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/client"
 	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
@@ -46,7 +47,7 @@ func loadFirmware(cmd *cobra.Command, args []string) {
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	err = c.LoadFirmwareFromFile(file, chunkSize, timeout)
+	err = c.LoadFirmwareFromFile(file, chunkSize, time.Duration(timeoutSecs)*time.Second)
 	e.ErrChk(err)
 
 	fmt.Printf("New ")
