@@ -19,7 +19,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/ci4rail/firmware-ota/pkg/io4edge/basefunc"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
 )
 
 type firmwareID struct {

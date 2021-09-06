@@ -3,9 +3,9 @@ package client
 import (
 	"errors"
 
-	"github.com/ci4rail/firmware-ota/pkg/io4edge"
-	"github.com/ci4rail/firmware-ota/pkg/io4edge/basefunc"
-	"github.com/ci4rail/firmware-ota/pkg/io4edge/transport"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/transport"
 )
 
 // NewClient creates a new base function client from address. Currently sockets is used as transport

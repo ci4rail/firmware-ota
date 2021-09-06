@@ -20,9 +20,9 @@ import (
 
 	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/internal/firmware"
 	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/pkg/version"
-	"github.com/ci4rail/firmware-ota/pkg/io4edge"
-	"github.com/ci4rail/firmware-ota/pkg/io4edge/basefunc"
-	"github.com/ci4rail/firmware-ota/pkg/io4edge/transport"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/transport"
 )
 
 var (
