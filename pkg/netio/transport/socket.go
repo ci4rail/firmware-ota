@@ -4,10 +4,10 @@ import (
 	"net"
 )
 
-// NewListener creates a Listener on a socket on a TCP socket
+// NewSocketListener creates a Listener on a socket on a TCP socket
 // port should be the port to listen to e.g. ":9999"
 // pass the Listener to WaitForConnect
-func NewListener(port string) (*net.TCPListener, error) {
+func NewSocketListener(port string) (*net.TCPListener, error) {
 	addr, err := net.ResolveTCPAddr("tcp", port)
 	if err != nil {
 		return nil, err
@@ -20,9 +20,9 @@ func NewListener(port string) (*net.TCPListener, error) {
 	return l, nil
 }
 
-// WaitForConnect waits for a client to connect to the TCP socket
+// WaitForSocketConnect waits for a client to connect to the TCP socket and returns the TCP connection
 // There is no timeout
-func WaitForConnect(l *net.TCPListener) (*net.TCPConn, error) {
+func WaitForSocketConnect(l *net.TCPListener) (*net.TCPConn, error) {
 
 	conn, err := l.AcceptTCP()
 	if err != nil {
@@ -31,8 +31,8 @@ func WaitForConnect(l *net.TCPListener) (*net.TCPConn, error) {
 	return conn, nil
 }
 
-// NewConnection connects to a TCP server at address
-func NewConnection(address string) (*net.TCPConn, error) {
+// NewSocketConnection connects to a TCP server at address and returns the TCP connection
+func NewSocketConnection(address string) (*net.TCPConn, error) {
 	addr, err := net.ResolveTCPAddr("tcp", address)
 	if err != nil {
 		return nil, err
@@ -44,4 +44,11 @@ func NewConnection(address string) (*net.TCPConn, error) {
 	}
 
 	return conn, nil
+}
+
+// NewMsgStreamFromConnection creates a message stream from TCP connection
+func NewMsgStreamFromConnection(conn *net.TCPConn) (*MsgStream, error) {
+	return &MsgStream{
+		trans: conn,
+	}, nil
 }

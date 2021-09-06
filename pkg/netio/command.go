@@ -12,5 +12,5 @@ func (c *Channel) Command(cmd proto.Message, res proto.Message, timeout time.Dur
 	if err != nil {
 		return err
 	}
-	return c.ReadMessageWithTimeout(res, timeout)
+	return c.ReadMessage(res, timeout)
 }

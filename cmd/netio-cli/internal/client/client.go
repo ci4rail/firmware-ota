@@ -10,11 +10,16 @@ import (
 
 // NewClient creates a new base function client from address. Currently sockets is used as transport
 func NewClient(address string) (*basefunc.Client, error) {
-	t, err := transport.NewConnection(address)
+	t, err := transport.NewSocketConnection(address)
 	if err != nil {
 		return nil, errors.New("can't create connection: " + err.Error())
 	}
-	ch, err := netio.NewChannel(t)
+	ms, err := transport.NewMsgStreamFromConnection(t)
+	if err != nil {
+		return nil, errors.New("can't create msg stream: " + err.Error())
+	}
+
+	ch, err := netio.NewChannel(ms)
 	if err != nil {
 		return nil, errors.New("can't create channel: " + err.Error())
 	}

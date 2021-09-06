@@ -32,7 +32,7 @@ var (
 func main() {
 	log.Printf("netio-devsim version: %s listen at port %s\n", version.Version, port)
 
-	listener, err := transport.NewListener(port)
+	listener, err := transport.NewSocketListener(port)
 	if err != nil {
 		log.Fatalf("Failed to create listener: %s", err)
 	}
@@ -41,12 +41,15 @@ func main() {
 		log.Fatalf("Failed to create devproto: %s", err)
 	}
 	for {
-		conn, err := transport.WaitForConnect(listener)
+		conn, err := transport.WaitForSocketConnect(listener)
 		if err != nil {
 			log.Fatalf("Failed to wait for connection: %s", err)
 		}
 		log.Printf("new connection!\n")
-		ch, _ := netio.NewChannel(conn)
+
+		ms, _ := transport.NewMsgStreamFromConnection(conn)
+
+		ch, _ := netio.NewChannel(ms)
 
 		serveConnection(ch)
 		time.Sleep(4 * time.Second) // simulate reboot
@@ -58,7 +61,7 @@ func serveConnection(ch *netio.Channel) {
 
 	for {
 		c := &basefunc.BaseFuncCommand{}
-		err := ch.ReadMessage(c)
+		err := ch.ReadMessage(c, 0)
 		if err != nil {
 			if err == io.EOF {
 				return

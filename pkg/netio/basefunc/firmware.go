@@ -76,7 +76,7 @@ func (c *Client) LoadFirmware(r *bufio.Reader, chunkSize uint, timeout time.Dura
 
 		res := &BaseFuncResponse{}
 
-		err = c.ch.ReadMessageWithTimeout(res, timeout)
+		err = c.ch.ReadMessage(res, timeout)
 		if err != nil {
 			return errors.New("reading load firmware chunk response failed: " + err.Error())
 		}
