@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package NetioBaseFunction;
-option go_package = "pkg/netio/basefunc";
+package io4edgeBaseFunction;
+option go_package = "pkg/io4edge/basefunc";
 
 
 message SerialNumber {

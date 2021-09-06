@@ -1,4 +1,4 @@
-package netio
+package io4edge
 
 import (
 	"time"

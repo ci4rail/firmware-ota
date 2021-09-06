@@ -11,7 +11,7 @@ type MsgStream struct {
 	trans Transport
 }
 
-// WriteMsg writes Netio standard message to the transport stream
+// WriteMsg writes io4edge standard message to the transport stream
 func (ms *MsgStream) WriteMsg(payload []byte) error {
 	// make sure we have the magic bytes
 	err := ms.writeMagicBytes()
@@ -73,7 +73,7 @@ func (ms *MsgStream) writeBytesSafe(payload []byte) error {
 	}
 }
 
-// ReadMsg reads a Netio standard message from transport stream
+// ReadMsg reads a io4edge standard message from transport stream
 func (ms *MsgStream) ReadMsg() ([]byte, error) {
 	// make sure we have the magic bytes
 	err := ms.readMagicBytes()

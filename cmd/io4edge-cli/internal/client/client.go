@@ -3,9 +3,9 @@ package client
 import (
 	"errors"
 
-	"github.com/ci4rail/firmware-ota/pkg/netio"
-	"github.com/ci4rail/firmware-ota/pkg/netio/basefunc"
-	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge/basefunc"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge/transport"
 )
 
 // NewClient creates a new base function client from address. Currently sockets is used as transport
@@ -19,7 +19,7 @@ func NewClient(address string) (*basefunc.Client, error) {
 		return nil, errors.New("can't create msg stream: " + err.Error())
 	}
 
-	ch, err := netio.NewChannel(ms)
+	ch, err := io4edge.NewChannel(ms)
 	if err != nil {
 		return nil, errors.New("can't create channel: " + err.Error())
 	}

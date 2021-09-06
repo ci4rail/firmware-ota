@@ -18,11 +18,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/internal/firmware"
-	"github.com/ci4rail/firmware-ota/cmd/netio-devsim/pkg/version"
-	"github.com/ci4rail/firmware-ota/pkg/netio"
-	"github.com/ci4rail/firmware-ota/pkg/netio/basefunc"
-	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/internal/firmware"
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/pkg/version"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge/basefunc"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge/transport"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 )
 
 func main() {
-	log.Printf("netio-devsim version: %s listen at port %s\n", version.Version, port)
+	log.Printf("io4edge-devsim version: %s listen at port %s\n", version.Version, port)
 
 	listener, err := transport.NewSocketListener(port)
 	if err != nil {
@@ -49,14 +49,14 @@ func main() {
 
 		ms, _ := transport.NewMsgStreamFromConnection(conn)
 
-		ch, _ := netio.NewChannel(ms)
+		ch, _ := io4edge.NewChannel(ms)
 
 		serveConnection(ch)
 		time.Sleep(4 * time.Second) // simulate reboot
 	}
 }
 
-func serveConnection(ch *netio.Channel) {
+func serveConnection(ch *io4edge.Channel) {
 	defer ch.Close()
 
 	for {

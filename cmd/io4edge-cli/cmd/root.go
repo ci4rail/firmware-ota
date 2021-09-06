@@ -17,7 +17,7 @@ limitations under the License.
 package cmd
 
 import (
-	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
+	e "github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/errors"
 
 	"github.com/spf13/cobra"
 )
@@ -29,9 +29,9 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "netio-cli",
-	Short: "netio cli",
-	Long: `Command line interface to communicate with Ci4Rail NetIO devices
+	Use:   "io4edge-cli",
+	Short: "io4edge cli",
+	Long: `Command line interface to communicate with Ci4Rail io4edge devices
 `,
 }
 
@@ -49,6 +49,6 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVarP(&device, "device", "d", "", "IP address of NetIO devices with port e.g. 192.168.7.1:9999")
+	rootCmd.PersistentFlags().StringVarP(&device, "device", "d", "", "IP address of io4edge devices with port e.g. 192.168.7.1:9999")
 	rootCmd.PersistentFlags().IntVarP(&timeoutSecs, "timeout", "t", 3, "Timeout in seconds to wait for device responses")
 }

@@ -14,7 +14,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/ci4rail/firmware-ota/cmd/netio-cli/cmd"
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-cli/cmd"
 )
 
 func main() {

@@ -1,14 +1,14 @@
-package netio
+package io4edge
 
 import (
 	"errors"
 	"time"
 
-	"github.com/ci4rail/firmware-ota/pkg/netio/transport"
+	"github.com/ci4rail/firmware-ota/pkg/io4edge/transport"
 	"google.golang.org/protobuf/proto"
 )
 
-// Channel represents a netio channel
+// Channel represents a io4edge channel
 type Channel struct {
 	ms transport.Msg
 }

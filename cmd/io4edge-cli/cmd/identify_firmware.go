@@ -20,40 +20,29 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/client"
-	e "github.com/ci4rail/firmware-ota/cmd/netio-cli/internal/errors"
-
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/client"
+	e "github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/errors"
 	"github.com/spf13/cobra"
 )
 
-var (
-	chunkSize = uint(1024)
-)
-
 // rootCmd represents the base command when called without any subcommands
-var loadFirmwareCmd = &cobra.Command{
-	Use:     "load-firmware FW_FILE",
-	Aliases: []string{"load"},
-	Short:   "Upload firmware to device",
-	Long: `Upload firmware to device.
-Example:
-netio-cli <firmware-file>`,
-	Run:  loadFirmware,
-	Args: cobra.ExactArgs(1),
+var identifyFirmwareCmd = &cobra.Command{
+	Use:     "identify-firmware",
+	Aliases: []string{"id-fw", "fw"},
+	Short:   "Get firmware infos from device",
+	Run:     identifyFirmware,
 }
 
-func loadFirmware(cmd *cobra.Command, args []string) {
-	file := args[0]
+func identifyFirmware(cmd *cobra.Command, args []string) {
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	err = c.LoadFirmwareFromFile(file, chunkSize, time.Duration(timeoutSecs)*time.Second)
+	fwID, err := c.IdentifyFirmware(time.Duration(timeoutSecs) * time.Second)
 	e.ErrChk(err)
 
-	fmt.Printf("New ")
-	identifyFirmware(cmd, args)
+	fmt.Printf("Firmware name: %s, Version %d.%d.%d\n", fwID.Name, fwID.MajorVersion, fwID.MinorVersion, fwID.PatchVersion)
 }
 
 func init() {
-	rootCmd.AddCommand(loadFirmwareCmd)
+	rootCmd.AddCommand(identifyFirmwareCmd)
 }
