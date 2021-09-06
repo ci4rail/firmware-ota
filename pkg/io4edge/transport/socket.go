@@ -47,8 +47,8 @@ func NewSocketConnection(address string) (*net.TCPConn, error) {
 }
 
 // NewMsgStreamFromConnection creates a message stream from TCP connection
-func NewMsgStreamFromConnection(conn *net.TCPConn) (*MsgStream, error) {
-	return &MsgStream{
+func NewMsgStreamFromConnection(conn *net.TCPConn) (*FramedStream, error) {
+	return &FramedStream{
 		trans: conn,
 	}, nil
 }

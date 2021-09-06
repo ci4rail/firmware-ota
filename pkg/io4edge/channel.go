@@ -10,11 +10,11 @@ import (
 
 // Channel represents a io4edge channel
 type Channel struct {
-	ms transport.Msg
+	ms transport.MsgStream
 }
 
 // NewChannel creates a new channel using the transport mechanism in t
-func NewChannel(ms transport.Msg) (*Channel, error) {
+func NewChannel(ms transport.MsgStream) (*Channel, error) {
 	return &Channel{ms: ms}, nil
 }
 

@@ -15,7 +15,7 @@ func (c *Client) IdentifyFirmware(timeout time.Duration) (*ResIdentifyFirmware, 
 		Id: BaseFuncCommandId_IDENTIFY_FIRMWARE,
 	}
 	res := &BaseFuncResponse{}
-	if err := c.ch.Command(cmd, res, timeout); err != nil {
+	if err := c.Command(cmd, res, timeout); err != nil {
 		return nil, err
 	}
 	return res.GetIdentifyFirmware(), nil
@@ -69,16 +69,10 @@ func (c *Client) LoadFirmware(r *bufio.Reader, chunkSize uint, timeout time.Dura
 		cmd.GetLoadFirmwareChunk().IsLastChunk = atEOF
 		cmd.GetLoadFirmwareChunk().ChunkNumber = chunkNumber
 
-		err = c.ch.WriteMessage(cmd)
-		if err != nil {
-			return errors.New("write load firmware chunk command failed: " + err.Error())
-		}
-
 		res := &BaseFuncResponse{}
-
-		err = c.ch.ReadMessage(res, timeout)
+		err = c.Command(cmd, res, timeout)
 		if err != nil {
-			return errors.New("reading load firmware chunk response failed: " + err.Error())
+			return errors.New("load firmware chunk command failed: " + err.Error())
 		}
 
 		if atEOF {
