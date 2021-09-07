@@ -3,7 +3,6 @@
 set -o errexit   # abort on nonzero exitstatus
 set -o pipefail  # don't hide errors within pipes
 
-
 if [ -z ${5} ]; then
   echo "Usage: ${0} <fw-binary> <full-hw-name> <fw-variant> <fw-version> <major-revs>"
   exit 1
@@ -32,7 +31,6 @@ function finish {
   rm -rf ${tmp_dir}
 }
 trap finish EXIT
-
 
 cp -a ${fw_binary} ${tmp_dir}/
 
