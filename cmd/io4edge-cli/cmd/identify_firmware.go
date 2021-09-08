@@ -25,7 +25,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var identifyFirmwareCmd = &cobra.Command{
 	Use:     "identify-firmware",
 	Aliases: []string{"id-fw", "fw"},

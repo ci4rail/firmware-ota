@@ -1,0 +1,12 @@
+{
+  "name": "cpu01-tty_accdl",
+  "version": "1.1.0",
+  "file": "fw_varA_1_1_0.json",
+  "compatibility": {
+    "hw": "s101-cpu01",
+    "major_revs": [
+      1,
+      2
+    ]
+  }
+}
