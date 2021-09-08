@@ -30,30 +30,49 @@ var (
 	chunkSize = uint(1024)
 )
 
-// rootCmd represents the base command when called without any subcommands
 var loadFirmwareCmd = &cobra.Command{
-	Use:     "load-firmware FW_FILE",
+	Use:     "load-firmware FW_PKG",
 	Aliases: []string{"load"},
-	Short:   "Upload firmware to device",
-	Long: `Upload firmware to device.
+	Short:   "Upload firmware package to device",
+	Long: `Upload firmware package to device.
 Example:
-io4edge-cli <firmware-file>`,
+io4edge-cli load-firmware <firmware-package-file>`,
 	Run:  loadFirmware,
 	Args: cobra.ExactArgs(1),
 }
 
 func loadFirmware(cmd *cobra.Command, args []string) {
+	// file := args[0]
+	// c, err := client.NewClient(device)
+	// e.ErrChk(err)
+
+}
+
+var loadRawFirmwareCmd = &cobra.Command{
+	Use:     "load-raw-firmware FW_FILE",
+	Aliases: []string{"load-raw"},
+	Short:   "Upload firmware binary file to device",
+	Long: `Upload firmware binary file to device.
+NO COMPATIBILITY CHECKS! USE AT YOUR OWN RISK!
+Example:
+io4edge-cli load-raw-firmware <firmware-file>`,
+	Run:  loadRawFirmware,
+	Args: cobra.ExactArgs(1),
+}
+
+func loadRawFirmware(cmd *cobra.Command, args []string) {
 	file := args[0]
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
 
-	err = c.LoadFirmwareFromFile(file, chunkSize, time.Duration(timeoutSecs)*time.Second)
+	err = c.LoadFirmwareBinaryFromFile(file, chunkSize, time.Duration(timeoutSecs)*time.Second)
 	e.ErrChk(err)
 
-	fmt.Printf("New ")
+	fmt.Println("Success. Read back programmed firmware info.")
 	identifyFirmware(cmd, args)
 }
 
 func init() {
 	rootCmd.AddCommand(loadFirmwareCmd)
+	rootCmd.AddCommand(loadRawFirmwareCmd)
 }

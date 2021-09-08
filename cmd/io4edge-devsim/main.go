@@ -77,6 +77,8 @@ func serveConnection(ch *io4edge.Channel) {
 			res = firmware.IdentifyFirmware()
 		case basefunc.BaseFuncCommandId_IDENTIFY_HARDWARE:
 			res = hardware.IdentifyHardware()
+		case basefunc.BaseFuncCommandId_PROGRAM_HARDWARE_IDENTIFICATION:
+			res = hardware.ProgramHardwareIdentification(c.GetProgramHardwareIdentification())
 		case basefunc.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK:
 			res, doreset = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
 		default:

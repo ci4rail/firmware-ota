@@ -17,6 +17,16 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/client"
+	e "github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/errors"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/uuid"
+
+	uuidv4 "github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -24,20 +34,43 @@ import (
 var programHardwareIdentificationCmd = &cobra.Command{
 	Use:     "program-hwid NAME MAJOR SERIAL",
 	Aliases: []string{"hwid"},
-	Short:   "Upload firmware to device",
-	Long: `Upload firmware to device.
+	Short:   "Program new HW ID",
+	Long: `Program new HW ID into device.
 Example:
 io4edge-cli program-hwid S101-IOU04 1 6ba7b810-9dad-11d1-80b4-00c04fd430c8`,
 	Run:  programHardwareIdentification,
-	Args: cobra.ExactArgs(1),
+	Args: cobra.ExactArgs(3),
 }
 
 func programHardwareIdentification(cmd *cobra.Command, args []string) {
-	//file := args[0]
-	//c, err := client.NewClient(device)
-	//e.ErrChk(err)
+	name := args[0]
+	major, err := strconv.Atoi(args[1])
+	e.ErrChk(err)
+	serial := args[2]
 
-	//err = c.ProgramHardwareIdentification()
+	u, err := uuidv4.NewV4()
+	e.ErrChk(err)
+	err = u.UnmarshalText([]byte(serial))
+	e.ErrChk(err)
+
+	serHi, serLo := uuid.ToSerial(u)
+
+	id := &basefunc.CmdProgramHardwareIdentification{
+		RootArticle:  name,
+		MajorVersion: uint32(major),
+		SerialNumber: &basefunc.SerialNumber{
+			Hi: serHi,
+			Lo: serLo,
+		},
+	}
+
+	c, err := client.NewClient(device)
+	e.ErrChk(err)
+
+	err = c.ProgramHardwareIdentification(id, time.Duration(timeoutSecs)*time.Second)
+	e.ErrChk(err)
+	fmt.Println("Success. Read back programmed ID")
+	identifyHardwareFromClient(c)
 }
 
 func init() {

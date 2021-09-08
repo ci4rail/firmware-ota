@@ -14,6 +14,8 @@ limitations under the License.
 package hardware
 
 import (
+	"fmt"
+
 	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
 )
 
@@ -30,10 +32,6 @@ type hardwareID struct {
 
 var (
 	hwID = hardwareID{"S101-CPU01:UC", serialNumber{0x1234567887654321, 0x4567456745674567}, 1}
-)
-
-const (
-	passwordHash = "abcd"
 )
 
 // IdentifyHardware reports the current hardware inventory data
@@ -57,12 +55,13 @@ func IdentifyHardware() *basefunc.BaseFuncResponse {
 }
 
 // ProgramHardwareIdentification instructs the device to program the new hardware identification in c
-func ProgramHardwareIdentification(c *basefunc.BaseFuncCommand_ProgramHardwareIdentification) *basefunc.BaseFuncResponse {
+func ProgramHardwareIdentification(c *basefunc.CmdProgramHardwareIdentification) *basefunc.BaseFuncResponse {
 	// TODO: Check signature
-	hwID.RootArticle = c.ProgramHardwareIdentification.RootArticle
-	hwID.SerialNumber.Hi = c.ProgramHardwareIdentification.SerialNumber.Hi
-	hwID.SerialNumber.Lo = c.ProgramHardwareIdentification.SerialNumber.Lo
-	hwID.MajorVersion = c.ProgramHardwareIdentification.MajorVersion
+	fmt.Printf("ProgramHardwareIdentification %s\n", c.RootArticle)
+	hwID.RootArticle = c.RootArticle
+	hwID.SerialNumber.Hi = c.SerialNumber.Hi
+	hwID.SerialNumber.Lo = c.SerialNumber.Lo
+	hwID.MajorVersion = c.MajorVersion
 
 	res := &basefunc.BaseFuncResponse{
 		Id:     basefunc.BaseFuncCommandId_IDENTIFY_HARDWARE,

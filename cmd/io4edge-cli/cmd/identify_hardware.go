@@ -22,6 +22,8 @@ import (
 
 	"github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/client"
 	e "github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/errors"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
+	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -36,11 +38,19 @@ var identifyHardwareCmd = &cobra.Command{
 func identifyHardware(cmd *cobra.Command, args []string) {
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
+	identifyHardwareFromClient(c)
+}
+
+func identifyHardwareFromClient(c *basefunc.Client) {
 	hwID, err := c.IdentifyHardware(time.Duration(timeoutSecs) * time.Second)
 	e.ErrChk(err)
-	fmt.Printf("Hardware name: %s, rev: %d, serial: %16x-%16x\n", hwID.RootArticle, hwID.SerialNumber.Hi, hwID.SerialNumber.Lo, hwID.MajorVersion)
+
+	u, err := uuid.FromSerial(hwID.SerialNumber.Hi, hwID.SerialNumber.Lo)
+	e.ErrChk(err)
+
+	fmt.Printf("Hardware name: %s, rev: %d, serial: %s\n", hwID.RootArticle, hwID.MajorVersion, u)
 }
 
 func init() {
-	rootCmd.AddCommand(identifyFirmwareCmd)
+	rootCmd.AddCommand(identifyHardwareCmd)
 }
