@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/internal/firmware"
+	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/internal/hardware"
 	"github.com/ci4rail/firmware-ota/cmd/io4edge-devsim/pkg/version"
 	"github.com/ci4rail/io4edge-client-go/pkg/io4edge"
 	"github.com/ci4rail/io4edge-client-go/pkg/io4edge/basefunc"
@@ -74,6 +75,8 @@ func serveConnection(ch *io4edge.Channel) {
 		switch c.Id {
 		case basefunc.BaseFuncCommandId_IDENTIFY_FIRMWARE:
 			res = firmware.IdentifyFirmware()
+		case basefunc.BaseFuncCommandId_IDENTIFY_HARDWARE:
+			res = hardware.IdentifyHardware()
 		case basefunc.BaseFuncCommandId_LOAD_FIRMWARE_CHUNK:
 			res, doreset = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
 		default:
