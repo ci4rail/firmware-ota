@@ -32,6 +32,10 @@ var (
 	hwID = hardwareID{"S101-CPU01:UC", serialNumber{0x1234567887654321, 0x4567456745674567}, 1}
 )
 
+const (
+	passwordHash = "abcd"
+)
+
 // IdentifyHardware reports the current hardware inventory data
 func IdentifyHardware() *basefunc.BaseFuncResponse {
 
@@ -48,6 +52,21 @@ func IdentifyHardware() *basefunc.BaseFuncResponse {
 				MajorVersion: hwID.MajorVersion,
 			},
 		},
+	}
+	return res
+}
+
+// ProgramHardwareIdentification instructs the device to program the new hardware identification in c
+func ProgramHardwareIdentification(c *basefunc.BaseFuncCommand_ProgramHardwareIdentification) *basefunc.BaseFuncResponse {
+	// TODO: Check signature
+	hwID.RootArticle = c.ProgramHardwareIdentification.RootArticle
+	hwID.SerialNumber.Hi = c.ProgramHardwareIdentification.SerialNumber.Hi
+	hwID.SerialNumber.Lo = c.ProgramHardwareIdentification.SerialNumber.Lo
+	hwID.MajorVersion = c.ProgramHardwareIdentification.MajorVersion
+
+	res := &basefunc.BaseFuncResponse{
+		Id:     basefunc.BaseFuncCommandId_IDENTIFY_HARDWARE,
+		Status: basefunc.BaseFuncStatus_OK,
 	}
 	return res
 }

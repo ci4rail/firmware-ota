@@ -17,31 +17,29 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/client"
-	e "github.com/ci4rail/firmware-ota/cmd/io4edge-cli/internal/errors"
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
-var identifyFirmwareCmd = &cobra.Command{
-	Use:     "identify-firmware",
-	Aliases: []string{"id-fw", "fw"},
-	Short:   "Get firmware infos from device",
-	Run:     identifyFirmware,
+var programHardwareIdentificationCmd = &cobra.Command{
+	Use:     "program-hwid NAME MAJOR SERIAL",
+	Aliases: []string{"hwid"},
+	Short:   "Upload firmware to device",
+	Long: `Upload firmware to device.
+Example:
+io4edge-cli program-hwid S101-IOU04 1 6ba7b810-9dad-11d1-80b4-00c04fd430c8`,
+	Run:  programHardwareIdentification,
+	Args: cobra.ExactArgs(1),
 }
 
-func identifyFirmware(cmd *cobra.Command, args []string) {
-	c, err := client.NewClient(device)
-	e.ErrChk(err)
-	fwID, err := c.IdentifyFirmware(time.Duration(timeoutSecs) * time.Second)
-	e.ErrChk(err)
+func programHardwareIdentification(cmd *cobra.Command, args []string) {
+	//file := args[0]
+	//c, err := client.NewClient(device)
+	//e.ErrChk(err)
 
-	fmt.Printf("Firmware name: %s, Version %d.%d.%d\n", fwID.Name, fwID.MajorVersion, fwID.MinorVersion, fwID.PatchVersion)
+	//err = c.ProgramHardwareIdentification()
 }
 
 func init() {
-	rootCmd.AddCommand(identifyFirmwareCmd)
+	rootCmd.AddCommand(programHardwareIdentificationCmd)
 }

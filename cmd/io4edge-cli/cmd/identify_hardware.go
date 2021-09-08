@@ -26,20 +26,19 @@ import (
 )
 
 // rootCmd represents the base command when called without any subcommands
-var identifyFirmwareCmd = &cobra.Command{
-	Use:     "identify-firmware",
-	Aliases: []string{"id-fw", "fw"},
-	Short:   "Get firmware infos from device",
-	Run:     identifyFirmware,
+var identifyHardwareCmd = &cobra.Command{
+	Use:     "identify-hardware",
+	Aliases: []string{"id-hw", "hw"},
+	Short:   "Get hardware infos from device",
+	Run:     identifyHardware,
 }
 
-func identifyFirmware(cmd *cobra.Command, args []string) {
+func identifyHardware(cmd *cobra.Command, args []string) {
 	c, err := client.NewClient(device)
 	e.ErrChk(err)
-	fwID, err := c.IdentifyFirmware(time.Duration(timeoutSecs) * time.Second)
+	hwID, err := c.IdentifyHardware(time.Duration(timeoutSecs) * time.Second)
 	e.ErrChk(err)
-
-	fmt.Printf("Firmware name: %s, Version %d.%d.%d\n", fwID.Name, fwID.MajorVersion, fwID.MinorVersion, fwID.PatchVersion)
+	fmt.Printf("Hardware name: %s, rev: %d, serial: %16x-%16x\n", hwID.RootArticle, hwID.SerialNumber.Hi, hwID.SerialNumber.Lo, hwID.MajorVersion)
 }
 
 func init() {
