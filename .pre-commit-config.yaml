@@ -6,11 +6,4 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
-  - repo: git://github.com/dnephin/pre-commit-golang
-    rev: master
-    hooks:
-      - id: go-fmt
-      - id: go-lint
-      - id: go-imports
-      - id: go-mod-tidy
-      - id: go-unit-tests
+
