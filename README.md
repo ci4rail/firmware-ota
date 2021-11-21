@@ -1,2 +1,2 @@
 # firmware-ota
-Everything needed for firmware OTA updates on edge device side
+Scripts and tools for io4edge OTA updates
